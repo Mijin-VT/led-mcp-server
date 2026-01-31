@@ -3,8 +3,10 @@ services:
     name: led-mcp-server
     runtime: python
     pythonVersion: "3.11"
-    buildCommand: "pip install -e ."
-    startCommand: "python -m led_mcp_server"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python app.py"
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: PORT
+        value: "10000"
