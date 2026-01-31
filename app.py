@@ -32,10 +32,11 @@ async def startup_event():
     logger.info("Iniciando servidor MCP...")
     try:
         # Iniciar el servidor MCP como un subproceso
+        # Proporcionamos PIPE para stdin para evitar errores de "Bad file descriptor"
+        # No capturamos stdout/stderr para que se vean en los logs de Render
         mcp_process = subprocess.Popen(
             [sys.executable, "-m", "led_mcp_server"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdin=subprocess.PIPE,
             text=True,
         )
         logger.info(f"Servidor MCP iniciado con PID: {mcp_process.pid}")
