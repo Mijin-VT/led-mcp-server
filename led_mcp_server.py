@@ -11,7 +11,7 @@ from typing import Any
 
 import mcp.server.stdio
 from mcp.server import Server
-from mcp.types import Tool, TextContent, ToolResult
+from mcp.types import Tool, TextContent
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -116,7 +116,7 @@ async def list_tools() -> list[Tool]:
 
 
 @server.call_tool()
-async def call_tool(name: str, arguments: dict) -> ToolResult:
+async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     """Ejecuta las herramientas disponibles"""
 
     if name == "turn_on_led":
@@ -124,22 +124,18 @@ async def call_tool(name: str, arguments: dict) -> ToolResult:
         led_state["is_on"] = True
         led_state["brightness"] = brightness
         logger.info(f"LED encendido al {brightness}%")
-        return ToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=f"✓ LED encendido correctamente con brillo al {brightness}%",
-                )
-            ]
-        )
+        return [
+            TextContent(
+                type="text",
+                text=f"✓ LED encendido correctamente con brillo al {brightness}%",
+            )
+        ]
 
     elif name == "turn_off_led":
         led_state["is_on"] = False
         led_state["brightness"] = 0
         logger.info("LED apagado")
-        return ToolResult(
-            content=[TextContent(type="text", text="✓ LED apagado correctamente")]
-        )
+        return [TextContent(type="text", text="✓ LED apagado correctamente")]
 
     elif name == "get_led_status":
         status = {
@@ -154,74 +150,60 @@ Estado del LED:
 - Color: {led_state['color']}
 """
         logger.info(f"Estado consultado: {status}")
-        return ToolResult(
-            content=[TextContent(type="text", text=status_text.strip())]
-        )
+        return [TextContent(type="text", text=status_text.strip())]
 
     elif name == "set_brightness":
         brightness = arguments.get("brightness", 50)
         if not 0 <= brightness <= 100:
-            return ToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text=f"✗ Error: El brillo debe estar entre 0 y 100. Recibido: {brightness}",
-                    )
-                ]
-            )
+            return [
+                TextContent(
+                    type="text",
+                    text=f"✗ Error: El brillo debe estar entre 0 y 100. Recibido: {brightness}",
+                )
+            ]
         led_state["brightness"] = brightness
         if brightness > 0:
             led_state["is_on"] = True
         logger.info(f"Brillo ajustado a {brightness}%")
-        return ToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=f"✓ Brillo ajustado correctamente a {brightness}%",
-                )
-            ]
-        )
+        return [
+            TextContent(
+                type="text",
+                text=f"✓ Brillo ajustado correctamente a {brightness}%",
+            )
+        ]
 
     elif name == "blink_led":
         times = arguments.get("times", 3)
         duration = arguments.get("duration", 500)
         logger.info(f"LED parpadeando {times} veces con duración {duration}ms")
-        return ToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=f"✓ LED parpadeando {times} veces con duración de {duration}ms cada parpadeo",
-                )
-            ]
-        )
+        return [
+            TextContent(
+                type="text",
+                text=f"✓ LED parpadeando {times} veces con duración de {duration}ms cada parpadeo",
+            )
+        ]
 
     elif name == "set_led_color":
         color = arguments.get("color", "white")
         valid_colors = ["red", "green", "blue", "yellow", "cyan", "magenta", "white"]
         if color not in valid_colors:
-            return ToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text=f"✗ Error: Color no válido. Colores disponibles: {', '.join(valid_colors)}",
-                    )
-                ]
-            )
-        led_state["color"] = color
-        logger.info(f"Color del LED cambiado a {color}")
-        return ToolResult(
-            content=[
+            return [
                 TextContent(
                     type="text",
-                    text=f"✓ Color del LED cambiado correctamente a {color}",
+                    text=f"✗ Error: Color no válido. Colores disponibles: {', '.join(valid_colors)}",
                 )
             ]
-        )
+        led_state["color"] = color
+        logger.info(f"Color del LED cambiado a {color}")
+        return [
+            TextContent(
+                type="text",
+                text=f"✓ Color del LED cambiado correctamente a {color}",
+            )
+        ]
 
     else:
-        return ToolResult(
-            content=[TextContent(type="text", text=f"✗ Herramienta desconocida: {name}")]
-        )
+        return [TextContent(type="text", text=f"✗ Herramienta desconocida: {name}")]
 
 
 async def main():
