@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: led-mcp-server
+    runtime: python
+    pythonVersion: "3.11"
+    buildCommand: "pip install -e ."
+    startCommand: "led-mcp"
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
