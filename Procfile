@@ -1,1 +1,1 @@
-web: python -m led_mcp_server
+web: python app.py
